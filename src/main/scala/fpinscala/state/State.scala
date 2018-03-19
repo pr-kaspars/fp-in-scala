@@ -61,8 +61,8 @@ object RNG {
 
   // Exercise 6.3
   def double3(rng: RNG): ((Double, Double, Double), RNG) =
-    Some(1.until(3).foldLeft(List(double(rng)))((l, _) => double(l.head._2) :: l))
-      .map(_ match { case List(a, b, c) => ((a._1, b._1, c._1), a._2) })
+    Some(1.until(3).foldLeft(List(double(rng)))((l, _) => double(l.head._2) :: l).reverse)
+      .map(_ match { case List(a, b, c) => ((a._1, b._1, c._1), c._2) })
       .head
 
   // Exercise 6.4
