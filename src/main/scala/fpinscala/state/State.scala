@@ -1,5 +1,9 @@
 package fpinscala.state
 
+import java.lang.Math._
+
+import scala.Int.MaxValue
+
 trait RNG {
   def nextInt: (Int, RNG) // Should generate a random `Int`. We'll later define other functions in terms of `nextInt`.
 }
@@ -30,20 +34,65 @@ object RNG {
       (f(a), rng2)
     }
 
-  def nonNegativeInt(rng: RNG): (Int, RNG) = ???
+  // Exercise 6.1
+  def nonNegativeInt(rng: RNG): (Int, RNG) =
+    Some(rng.nextInt)
+      .map(t => (abs(t._1) & MaxValue, t._2))
+      .head
 
-  def double(rng: RNG): (Double, RNG) = ???
+  // Exercise 6.2
+  def doubleOld(rng: RNG): (Double, RNG) =
+    Some(nonNegativeInt(rng))
+      .map(t => ((abs(t._1) - floorDiv(t._1, MaxValue)) / MaxValue.toDouble, t._2))
+      .head
 
-  def intDouble(rng: RNG): ((Int, Double), RNG) = ???
+  // Exercise 6.3
+  def intDouble(rng: RNG): ((Int, Double), RNG) =
+    Some(rng.nextInt)
+      .map(t => ((t._1, double(t._2))))
+      .map(t => ((t._1, t._2._1), t._2._2))
+      .head
 
-  def doubleInt(rng: RNG): ((Double, Int), RNG) = ???
+  // Exercise 6.3
+  def doubleInt(rng: RNG): ((Double, Int), RNG) =
+    Some(intDouble(rng))
+      .map(t => (t._1.swap, t._2))
+      .head
 
-  def double3(rng: RNG): ((Double, Double, Double), RNG) = ???
+  // Exercise 6.3
+  def double3(rng: RNG): ((Double, Double, Double), RNG) =
+    Some(1.until(3).foldLeft(List(double(rng)))((l, _) => double(l.head._2) :: l))
+      .map(_ match { case List(a, b, c) => ((a._1, b._1, c._1), a._2) })
+      .head
 
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) = ???
+  // Exercise 6.4
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) =
+    Some(1.until(count).foldLeft(List(rng.nextInt))((l, _) => l.head._2.nextInt :: l).unzip)
+      .map(t => (t._1, t._2.head))
+      .head
 
-  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = ???
+  // Exercise 6.5
+  def double(rng: RNG): (Double, RNG) =
+    map(nonNegativeInt)(i => (i - floorDiv(i, MaxValue)) / MaxValue.toDouble)(rng)
 
+  // Exercise 6.6
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    rng => {
+      val (a, ga) = ra(rng)
+      val (b, gb) = rb(ga)
+      (f(a, b), gb)
+    }
+
+  def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] =
+    map2(ra, rb)((_, _))
+
+  val randIntDouble: Rand[(Int, Double)] =
+    both(int, double)
+
+  val randDoubleInt: Rand[(Double, Int)] =
+    both(double, int)
+
+  // Exercise 6.7
   def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
 
   def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] = ???
