@@ -23,4 +23,16 @@ class StreamTest extends FlatSpec with Matchers {
   it should "return Stream of max available length" in {
     Stream(1, 2, 3).take(5).toList shouldBe List(1, 2, 3)
   }
+
+  "drop" should "return empty" in {
+    Stream.empty.drop(4) shouldBe Empty
+  }
+
+  it should "return empty after removing all elements" in {
+    Stream(1, 2, 3).drop(5) shouldBe Empty
+  }
+
+  it should "return remaining elements" in {
+    Stream(1, 2, 3, 4, 5).drop(3).toList shouldBe List(4, 5)
+  }
 }

@@ -23,11 +23,15 @@ trait Stream[+A] {
 
   def take(n: Int): Stream[A] =
     this match {
-      case Cons(h, t) if n > 0 => Stream.cons(h(), t().take(n - 1))
+      case Cons(h, t) if n > 0 => Cons[A](h, () => t().take(n - 1))
       case _ => Empty
     }
 
-  def drop(n: Int): Stream[A] = ???
+  def drop(n: Int): Stream[A] =
+    this match {
+      case Cons(_, t) => if (n > 1) t().drop(n - 1) else t()
+      case _ => Empty
+    }
 
   def takeWhile(p: A => Boolean): Stream[A] = ???
 
