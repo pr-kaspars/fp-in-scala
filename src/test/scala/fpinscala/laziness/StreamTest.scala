@@ -35,4 +35,16 @@ class StreamTest extends FlatSpec with Matchers {
   it should "return remaining elements" in {
     Stream(1, 2, 3, 4, 5).drop(3).toList shouldBe List(4, 5)
   }
+
+  "takeWhile" should "return empty" in {
+    Stream.empty.takeWhile((_: Int) => true) shouldBe Empty
+  }
+
+  it should "return empty when predicate is false" in {
+    Stream(1, 2, 3).takeWhile(_ => false) shouldBe Empty
+  }
+
+  it should "return beginning of the stream" in {
+    Stream(1, 2, 3, 4).takeWhile(_ < 3).toList shouldBe List(1, 2)
+  }
 }
