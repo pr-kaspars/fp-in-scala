@@ -117,8 +117,16 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 3).append(Stream(4, 5, 6)).toList shouldBe List(1, 2, 3, 4, 5, 6)
   }
 
-  "flatMap" should "work" in {
-    ???
+  "flatMap" should "return return empty" in {
+    Empty.flatMap((a: Char) => Stream(a, a + 1)) shouldBe Empty
+  }
+
+  it should "return one flat stream" in {
+    Stream('a', 'd', 'g').flatMap(a => Stream.empty) shouldBe Empty
+  }
+
+  it should "return flat stream" in {
+    Stream('a', 'd', 'g').flatMap(a => Stream(a, a + 1)).toList shouldBe List('a', 'b', 'd', 'e', 'g', 'h')
   }
 
   "startsWith" should "work" in {
