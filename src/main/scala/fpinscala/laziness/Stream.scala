@@ -2,6 +2,8 @@ package fpinscala.laziness
 
 import Stream._
 
+import scala.annotation.tailrec
+
 trait Stream[+A] {
 
   def foldRight[B](z: => B)(f: (A, => B) => B): B = // The arrow `=>` in front of the argument type `B` means that the function `f` takes its second argument by name and may choose not to evaluate it.
@@ -13,13 +15,17 @@ trait Stream[+A] {
   def exists(p: A => Boolean): Boolean =
     foldRight(false)((a, b) => p(a) || b) // Here `b` is the unevaluated recursive step that folds the tail of the stream. If `p(a)` returns `true`, `b` will never be evaluated and the computation terminates early.
 
-  @annotation.tailrec
+  @tailrec
   final def find(f: A => Boolean): Option[A] = this match {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
 
-  def take(n: Int): Stream[A] = ???
+  def take(n: Int): Stream[A] =
+    this match {
+      case Cons(h, t) if n > 0 => Stream.cons(h(), t().take(n - 1))
+      case _ => Empty
+    }
 
   def drop(n: Int): Stream[A] = ???
 
