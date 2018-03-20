@@ -81,16 +81,40 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 3).headOption shouldBe Some(1)
   }
 
-  "map" should "work" in {
-    ???
+  "map" should "return empty" in {
+    Stream.empty.map((a: Int) => a + 10) shouldBe Empty
   }
 
-  "filter" should "work" in {
-    ???
+  it should "return map stream" in {
+    Stream(1, 2, 3, 4, 5).map(_ * 2).toList shouldBe List(2, 4, 6, 8, 10)
   }
 
-  "append" should "work" in {
-    ???
+  "filter" should "return empty" in {
+    Stream.empty.filter((_: Int) => true) shouldBe Empty
+  }
+
+  it should "return empty when no items match" in {
+    Stream(1, 2, 3, 4, 5, 6).filter((_: Int) => false) shouldBe Empty
+  }
+
+  it should "return even numbers" in {
+    Stream(1, 2, 3, 4, 5, 6).filter(_ % 2 == 0).toList shouldBe List(2, 4, 6)
+  }
+
+  "append" should "return empty when apending empty to empty" in {
+    Stream.empty.append(Stream.empty) shouldBe Empty
+  }
+
+  it should "return the same stream when appending to empty" in {
+    Stream.empty.append(Stream(4, 5, 6)).toList shouldBe List(4, 5, 6)
+  }
+
+  it should "return the same stream when appending empty" in {
+    Stream(1, 2, 3).append(Stream.empty).toList shouldBe List(1, 2, 3)
+  }
+
+  it should "return apended streams" in {
+    Stream(1, 2, 3).append(Stream(4, 5, 6)).toList shouldBe List(1, 2, 3, 4, 5, 6)
   }
 
   "flatMap" should "work" in {

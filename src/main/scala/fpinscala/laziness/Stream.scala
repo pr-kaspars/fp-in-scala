@@ -53,11 +53,16 @@ trait Stream[+A] {
   def headOption: Option[A] =
     foldRight[Option[A]](None)((a, b) => Some(a).orElse(b))
 
-  def map[B](f: A => B): Stream[B] = ???
+  def map[B](f: A => B): Stream[B] =
+    foldRight[Stream[B]](Empty)((a, b) => Cons(() => f(a), () => b))
 
-  def filter(f: A => Boolean): Stream[A] = ???
+  def filter(f: A => Boolean): Stream[A] =
+    foldRight[Stream[A]](Empty)((a, b) =>
+      if (f(a)) Cons(() => a, () => b) else b
+    )
 
-  def append[A](s: Stream[A]): Stream[A] = ???
+  def append[B >: A](s: => Stream[B]): Stream[B] =
+    foldRight(s)((a, b) => Cons(() => a, () => b))
 
   def flatMap[B](f: A => Stream[B]): Stream[B] = ???
 
