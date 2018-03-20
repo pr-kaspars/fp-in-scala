@@ -36,6 +36,18 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 3, 4, 5).drop(3).toList shouldBe List(4, 5)
   }
 
+  "takeWhileMatch" should "return empty" in {
+    Stream.empty.takeWhileMatch((_: Int) => true) shouldBe Empty
+  }
+
+  it should "return empty when predicate is false" in {
+    Stream(1, 2, 3).takeWhileMatch(_ => false) shouldBe Empty
+  }
+
+  it should "return beginning of the stream" in {
+    Stream(1, 2, 3, 4).takeWhileMatch(_ < 3).toList shouldBe List(1, 2)
+  }
+
   "takeWhile" should "return empty" in {
     Stream.empty.takeWhile((_: Int) => true) shouldBe Empty
   }
@@ -48,6 +60,7 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 3, 4).takeWhile(_ < 3).toList shouldBe List(1, 2)
   }
 
+
   "forAll" should "return false if the stream is empty" in {
     Stream.empty.forAll((_: Int) => true) shouldBe false
   }
@@ -58,5 +71,13 @@ class StreamTest extends FlatSpec with Matchers {
 
   it should "return true if no elements match" in {
     Stream(2, 4, 6, 8).forAll(_ % 2 == 0) shouldBe true
+  }
+
+  "headOption" should "return None when empty stream" in {
+    Stream.empty.headOption shouldBe None
+  }
+
+  it should "return head item" in {
+    Stream(1, 2, 3).headOption shouldBe Some(1)
   }
 }
