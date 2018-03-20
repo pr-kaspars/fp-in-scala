@@ -80,4 +80,24 @@ class StreamTest extends FlatSpec with Matchers {
   it should "return head item" in {
     Stream(1, 2, 3).headOption shouldBe Some(1)
   }
+
+  "map" should "work" in {
+    ???
+  }
+
+  "filter" should "work" in {
+    ???
+  }
+
+  "append" should "work" in {
+    ???
+  }
+
+  "flatMap" should "work" in {
+    ???
+  }
+
+  "startsWith" should "work" in {
+    ???
+  }
 }

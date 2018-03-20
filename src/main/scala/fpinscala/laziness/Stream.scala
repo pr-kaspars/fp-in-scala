@@ -53,8 +53,13 @@ trait Stream[+A] {
   def headOption: Option[A] =
     foldRight[Option[A]](None)((a, b) => Some(a).orElse(b))
 
-  // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
-  // writing your own function signatures.
+  def map[B](f: A => B): Stream[B] = ???
+
+  def filter(f: A => Boolean): Stream[A] = ???
+
+  def append[A](s: Stream[A]): Stream[A] = ???
+
+  def flatMap[B](f: A => Stream[B]): Stream[B] = ???
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 
