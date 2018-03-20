@@ -47,4 +47,16 @@ class StreamTest extends FlatSpec with Matchers {
   it should "return beginning of the stream" in {
     Stream(1, 2, 3, 4).takeWhile(_ < 3).toList shouldBe List(1, 2)
   }
+
+  "forAll" should "return false if the stream is empty" in {
+    Stream.empty.forAll((_: Int) => true) shouldBe false
+  }
+
+  it should "return false if no elements match" in {
+    Stream(2, 4, 6, 8).forAll(_ % 5 == 0) shouldBe false
+  }
+
+  it should "return true if no elements match" in {
+    Stream(2, 4, 6, 8).forAll(_ % 2 == 0) shouldBe true
+  }
 }
