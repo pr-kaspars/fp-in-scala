@@ -12,6 +12,18 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 3, 4).toList shouldBe List(1, 2, 3, 4)
   }
 
+  "takeOld" should "return empty" in {
+    Stream.empty.takeOld(3) shouldBe Empty
+  }
+
+  it should "return Stream of correct length" in {
+    Stream(1, 2, 3, 4, 5).takeOld(3).toList shouldBe List(1, 2, 3)
+  }
+
+  it should "return Stream of max available length" in {
+    Stream(1, 2, 3).takeOld(5).toList shouldBe List(1, 2, 3)
+  }
+
   "take" should "return empty" in {
     Stream.empty.take(3) shouldBe Empty
   }
@@ -48,6 +60,18 @@ class StreamTest extends FlatSpec with Matchers {
     Stream(1, 2, 3, 4).takeWhileMatch(_ < 3).toList shouldBe List(1, 2)
   }
 
+  "takeWhileOld" should "return empty" in {
+    Stream.empty.takeWhileOld((_: Int) => true) shouldBe Empty
+  }
+
+  it should "return empty when predicate is false" in {
+    Stream(1, 2, 3).takeWhileOld(_ => false) shouldBe Empty
+  }
+
+  it should "return beginning of the stream" in {
+    Stream(1, 2, 3, 4).takeWhileOld(_ < 3).toList shouldBe List(1, 2)
+  }
+
   "takeWhile" should "return empty" in {
     Stream.empty.takeWhile((_: Int) => true) shouldBe Empty
   }
@@ -59,7 +83,6 @@ class StreamTest extends FlatSpec with Matchers {
   it should "return beginning of the stream" in {
     Stream(1, 2, 3, 4).takeWhile(_ < 3).toList shouldBe List(1, 2)
   }
-
 
   "forAll" should "return false if the stream is empty" in {
     Stream.empty.forAll((_: Int) => true) shouldBe false
@@ -79,6 +102,14 @@ class StreamTest extends FlatSpec with Matchers {
 
   it should "return head item" in {
     Stream(1, 2, 3).headOption shouldBe Some(1)
+  }
+
+  "mapOld" should "return empty" in {
+    Stream.empty.mapOld((a: Int) => a + 10) shouldBe Empty
+  }
+
+  it should "return map stream" in {
+    Stream(1, 2, 3, 4, 5).mapOld(_ * 2).toList shouldBe List(2, 4, 6, 8, 10)
   }
 
   "map" should "return empty" in {
@@ -129,7 +160,25 @@ class StreamTest extends FlatSpec with Matchers {
     Stream('a', 'd', 'g').flatMap(a => Stream(a, a + 1)).toList shouldBe List('a', 'b', 'd', 'e', 'g', 'h')
   }
 
-  "startsWith" should "work" in {
-    ???
+  "fibsOld" should "return fibonacci sequence" in {
+    val fib10 = Stream.fibsOld.take(10).toList
+    fib10 shouldBe List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+  }
+
+  "fibs" should "return fibonacci sequence" in {
+    val fib10 = Stream.fibs.take(10).toList
+    fib10 shouldBe List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+  }
+
+  "unfold" should "return empty" in {
+    Stream.unfold(1)(_ => None) shouldBe Empty
+  }
+
+  it should "return certain length stream" in {
+    Stream.unfold(0)(s => if (s < 5) Some(10 - s, s + 1) else None).toList shouldBe List(10, 9, 8, 7, 6)
+  }
+
+  it should "return stream" in {
+    Stream.unfold(0)(s => Some(s + 1, s + 1)).take(5).toList shouldBe List(1, 2, 3, 4, 5)
   }
 }
