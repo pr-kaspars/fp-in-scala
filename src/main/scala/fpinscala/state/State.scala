@@ -5,12 +5,10 @@ import java.lang.Math._
 import scala.Int.MaxValue
 
 trait RNG {
-  def nextInt: (Int, RNG) // Should generate a random `Int`. We'll later define other functions in terms of `nextInt`.
+  def nextInt: (Int, RNG)
 }
 
 object RNG {
-
-  // NB - this was called SimpleRNG in the book text
 
   case class Simple(seed: Long) extends RNG {
     def nextInt: (Int, RNG) = {
@@ -66,10 +64,13 @@ object RNG {
       .head
 
   // Exercise 6.4
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) =
+  def intsOld(count: Int)(rng: RNG): (List[Int], RNG) =
     Some(1.until(count).foldLeft(List(rng.nextInt))((l, _) => l.head._2.nextInt :: l).unzip)
       .map(t => (t._1, t._2.head))
       .head
+
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) =
+    sequence(List.fill(count)(int))(rng)
 
   // Exercise 6.5
   def double(rng: RNG): (Double, RNG) =
@@ -93,7 +94,12 @@ object RNG {
     both(double, int)
 
   // Exercise 6.7
-  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
+    r =>
+      Option(fs.foldRight[(List[A], RNG)]((Nil, r))((a, b) =>
+        Option(a(b._2)).map(t => (t._1 :: b._1, t._2)).head)
+      ).map(t => (t._1.reverse, t._2)).head
+
 
   def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] = ???
 }

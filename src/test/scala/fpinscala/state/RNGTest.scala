@@ -75,20 +75,30 @@ class RNGTest extends FlatSpec with Matchers {
 
   "intDouble" should "return tuple of random numbers" in {
     val result = intDouble(TestRng(List(1, 8)))
-    result._1 shouldBe (1, 8 / d)
+    result._1 shouldBe(1, 8 / d)
     result._2 shouldBe TestRng(Nil)
   }
 
   "doubleInt" should "return tuple of random numbers" in {
     val result = doubleInt(TestRng(List(1, 8)))
-    result._1 shouldBe (8 / d, 1)
+    result._1 shouldBe(8 / d, 1)
     result._2 shouldBe TestRng(Nil)
   }
 
   "double3" should "return tuple of three doubles" in {
     val result = double3(TestRng(List(100, 300, 800)))
-    result._1 shouldBe (100 / d, 300 / d, 800 / d)
+    result._1 shouldBe(100 / d, 300 / d, 800 / d)
     result._2 shouldBe TestRng(Nil)
+  }
+
+  "sequence" should "return rand with list" in {
+    val r = TestRng(Nil)
+    sequence(Nil)(r) shouldBe(Nil, TestRng(Nil))
+  }
+
+  it should "return list" in {
+    val l = List(0, 1, 1, 2, 3, 5, 8, 13)
+    sequence(List.fill(8)(RNG.int))(TestRng(l)) shouldBe(l, TestRng(Nil))
   }
 
 }
