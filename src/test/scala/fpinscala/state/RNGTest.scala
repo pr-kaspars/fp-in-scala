@@ -101,4 +101,18 @@ class RNGTest extends FlatSpec with Matchers {
     sequence(List.fill(8)(RNG.int))(TestRng(l)) shouldBe(l, TestRng(Nil))
   }
 
+  "flatMap" should "do stuff" in {
+    val r = TestRng(List(1, 2))
+    flatMap(_.nextInt)(_ => _.nextInt)(r) shouldBe(2, TestRng(Nil))
+  }
+
+  "nonNegativeLessThan" should "return ok and not go recursive" in {
+    val r = TestRng(List(101))
+    nonNegativeLessThanOld(2)(r) shouldBe(1, TestRng(Nil))
+  }
+
+  it should "return ok go recursive" in {
+    val r = TestRng(List(Int.MaxValue, 102))
+    nonNegativeLessThanOld(Int.MaxValue)(r) shouldBe(102, TestRng(Nil))
+  }
 }

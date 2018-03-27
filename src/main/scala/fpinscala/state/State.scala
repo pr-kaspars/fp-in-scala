@@ -26,11 +26,15 @@ object RNG {
   def unit[A](a: A): Rand[A] =
     rng => (a, rng)
 
-  def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
+  def mapOld[A, B](s: Rand[A])(f: A => B): Rand[B] =
     rng => {
       val (a, rng2) = s(rng)
       (f(a), rng2)
     }
+
+  // Exercise 6.9
+  def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
+    flatMap(s)(a => unit(f(a)))
 
   // Exercise 6.1
   def nonNegativeInt(rng: RNG): (Int, RNG) =
@@ -77,15 +81,19 @@ object RNG {
     map(nonNegativeInt)(i => (i - floorDiv(i, MaxValue)) / MaxValue.toDouble)(rng)
 
   // Exercise 6.6
-  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+  def map2Old[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
     rng => {
       val (a, ga) = ra(rng)
       val (b, gb) = rb(ga)
       (f(a, b), gb)
     }
 
+  // Exercise 6.9
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    flatMap(both(ra, rb))(t => unit(f(t._1, t._2)))
+
   def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] =
-    map2(ra, rb)((_, _))
+    map2Old(ra, rb)((_, _))
 
   val randIntDouble: Rand[(Int, Double)] =
     both(int, double)
@@ -96,12 +104,29 @@ object RNG {
   // Exercise 6.7
   def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
     r =>
-      Option(fs.foldRight[(List[A], RNG)]((Nil, r))((a, b) =>
+      Option(fs.foldRight[(List[A], RNG)](unit(Nil)(r))((a, b) =>
         Option(a(b._2)).map(t => (t._1 :: b._1, t._2)).head)
       ).map(t => (t._1.reverse, t._2)).head
 
+  // Exercise 6.8
+  def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] =
+    rnd => Option(f(rnd)).map(t => g(t._1)(t._2)).head
 
-  def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] = ???
+  def nonNegativeLessThanOld(n: Int): Rand[Int] = {
+    rng =>
+      val (i, rng2) = nonNegativeInt(rng)
+      val mod = i % n
+      if (i + (n - 1) - mod >= 0)
+        (mod, rng2)
+      else nonNegativeLessThanOld(n)(rng2)
+  }
+
+  def nonNegativeLessThan(n: Int): Rand[Int] =
+    flatMap(nonNegativeInt)(i =>
+      if (i + (n - 1) - (i % n) >= 0) unit(i % n)
+      else nonNegativeLessThanOld(n)
+    )
+
 }
 
 case class State[S, +A](run: S => (A, S)) {
